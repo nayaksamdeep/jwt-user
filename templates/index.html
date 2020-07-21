@@ -1,0 +1,28 @@
+
+<html>
+   <center> <h2>Welcome to TinyURL service
+   <br/><br/>
+  <body onload="loadService()">
+
+  <script>
+  function loadService() {
+     //alert(document.forms["urlform"].url.value);
+     const queryString = window.location.search;
+     urlParams = new URLSearchParams(queryString);
+     urlstr = urlParams.get('url');
+     tinyurlstr = urlParams.get('tinyurl');
+     document.forms["urlform"].url.value = urlstr;
+     document.getElementById('tinyurl').innerHTML = tinyurlstr;
+  }
+  </script>
+
+  <form role="form" name="urlform" action="http://localhost:8080/v1/ConvertURL" method="POST">
+  <t> <font color="blue"> Please enter long URL </font> </t>
+  <input type="text" id=url name="url" value="google"/>
+  <input type="submit" value="Make Tiny url"/>
+  <br/><br/>
+  <label id="tinyurl">Here goes your Tiny URL: <b><u> <font color="green">  <font> </label> </u></b>
+  <br/>
+  </form>
+</html>
+
