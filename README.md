@@ -1,4 +1,4 @@
-# tinyurl
-URL Shortening
+# jwt-user
 
-https://github.com/victorsteven/jwt-best-practices/blob/master/main.go
+Good Reference
+https://github.com/victorsteven/jwt-best-practices
