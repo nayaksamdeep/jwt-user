@@ -6,6 +6,7 @@ import (
         "github.com/nayaksamdeep/jwt-user/Models"
 	"github.com/gin-gonic/gin"
 //	"github.com/gin-gonic/gin/binding"
+        "strconv"
 )
 
 func ListUsers(c *gin.Context) {
@@ -52,8 +53,23 @@ func CreateUser(c *gin.Context) {
 
 func GetUser(c *gin.Context) {
         var userstruct Models.User
-        id := c.Params.ByName("id")
-        err := Models.GetUser(&userstruct, id)
+//        id := c.Params.ByName("id")
+
+
+        //Check if token is present
+        metadata, err := ExtractTokenMetadata(c.Request)
+        if err != nil {
+                c.JSON(http.StatusUnauthorized, "unauthorized")
+                return
+        }
+        userid, err := FetchAuth(metadata)
+        if err != nil {
+                c.JSON(http.StatusUnauthorized, err.Error())
+                return
+        }
+        id := strconv.FormatInt(userid, 16)
+
+        err = Models.GetUser(&userstruct, id)
         if err != nil {
                 c.AbortWithStatus(http.StatusNotFound)
                 fmt.Println("Request aborted with Status Not Found")

@@ -32,6 +32,8 @@ func main() {
 	// run the migrations: todo struct
 	Models.DB.AutoMigrate(&Models.RedirectUrl{})
 
+	Models.DB.AutoMigrate(&Models.User{})
+
         fmt.Println("hi there! Welcome to Contact List Service\n");
 
         r := Routes.SetupRouter()

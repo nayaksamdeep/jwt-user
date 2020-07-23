@@ -2,8 +2,11 @@ package Models
 
 import (
 //   "strings"
+     "github.com/jinzhu/gorm"
    "time"
 )
+
+var DB *gorm.DB
 
 type RedirectUrl struct {
 	ID uint            `json:"id"`

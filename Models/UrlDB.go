@@ -4,10 +4,10 @@ import (
 	"fmt"
         "log"
 	_"github.com/mattn/go-sqlite3"
-        "github.com/jinzhu/gorm"
+//        "github.com/jinzhu/gorm"
 )
 
-var DB *gorm.DB
+//var DB *gorm.DB
 
 func GetAllUrl(urlstruct  *[]RedirectUrl) (err error) {
 	if err = DB.Find(urlstruct).Error; err != nil {
