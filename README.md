@@ -1,6 +1,6 @@
 # jwt-user
 
-Good Reference
+Good References
 
 https://github.com/victorsteven/jwt-best-practices
 
