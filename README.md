@@ -8,6 +8,7 @@ https://github.com/ishrivatsa/user
 
 https://github.com/open-policy-agent/opa
 
+https://github.com/open-policy-agent/example-api-authz-go
 
 Here are the steps to run
 
