@@ -6,6 +6,7 @@ import (
         "github.com/nayaksamdeep/jwt-user/Models"
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
+//	"strconv"
 )
 
 func GetHomePage (c *gin.Context) {
@@ -35,10 +36,26 @@ func ConvertAUrl(c *gin.Context) {
 	var urlstruct Models.RedirectUrl
 	id := c.Params.ByName("id") //Newly Added
 
-	//val := c.BindJSON(&urlstruct)
-        val := c.ShouldBindWith(&urlstruct, binding.FormPost);
-        fmt.Println("Binding: ", val);
-	err := Models.ConvertAUrl(&urlstruct)
+        //Check if token is present
+        metadata, err := ExtractTokenMetadata(c.Request)
+        if err != nil {
+                fmt.Println("Anonymous User")
+        	val := c.ShouldBindWith(&urlstruct, binding.FormPost);
+        	fmt.Println("Binding: ", val);
+        } else {
+        	userid, err := FetchAuth(metadata)
+        	if err != nil {
+                	c.JSON(http.StatusUnauthorized, err.Error())
+                	return
+        	}
+//        	Id := strconv.FormatInt(userid, 16)
+        	val := c.ShouldBindWith(&urlstruct, binding.FormPost);
+        	fmt.Println("Binding: ", val);
+    		//Assign the user associated with this request
+		urlstruct.USERID = userid
+        }
+
+	err = Models.ConvertAUrl(&urlstruct)
 	if err != nil {
                 fmt.Println("Error: " , err);
 		c.AbortWithStatus(http.StatusNotFound)
@@ -58,32 +75,81 @@ func ConvertAUrl(c *gin.Context) {
 
 func RedirectAUrl(c *gin.Context) {
 	var urlstruct Models.RedirectUrl
+        var AuthCheck bool
+	var UserId int64
+
 	id := c.Params.ByName("id")
-	err := Models.RedirectAUrl(&urlstruct, id)
+
+        //Check if token is present
+        metadata, err := ExtractTokenMetadata(c.Request)
+        if err != nil {
+                fmt.Println("Anonymous User")
+		goto GetRedirectStruct;
+        } else {
+                UserId, err = FetchAuth(metadata)
+                if err != nil {
+                	fmt.Println("Fetch Auth Failed")
+                        c.JSON(http.StatusUnauthorized, err.Error())
+                        return
+                }
+//                UserId = strconv.FormatInt(userid, 16)
+	 	AuthCheck = true	
+        }
+
+GetRedirectStruct:
+	err = Models.RedirectAUrl(&urlstruct, id)
 	if err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
                 fmt.Println("Request aborted with Status Not Found")
 	} else {
+		if (AuthCheck == true) {
+			if (urlstruct.USERID != UserId) {
+				c.AbortWithStatus(http.StatusNotFound)
+                		fmt.Println("Request aborted with Status Mismatch in auth details")
+				return
+			}
+		}
                 urlstr := "http://" +  string(urlstruct.Url)
                 fmt.Println("Request processed with Status OK for ", urlstr)
-//		c.JSON(http.StatusOK, urlstruct)
                 c.Redirect(http.StatusPermanentRedirect, urlstr)
-//                c.Redirect(302, "http://www.amazon.com")
 	}
 }
 
 func UpdateAUrl(c *gin.Context) {
 	var urlstruct Models.RedirectUrl
+	var UserId int64
 	id := c.Params.ByName("id")
-	err := Models.GetUrl(&urlstruct, id)
+
+        //Check if token is present
+        metadata, err := ExtractTokenMetadata(c.Request)
+        if err != nil {
+                fmt.Println("Anonymous Users can not create Custom URL")
+		c.AbortWithStatus(http.StatusNotFound)
+		return
+        } else {
+                UserId, err = FetchAuth(metadata)
+                if err != nil {
+                        fmt.Println("Fetch Auth Failed")
+                        c.JSON(http.StatusUnauthorized, err.Error())
+                        return
+		}
+        } 
+
+	err = Models.GetUrl(&urlstruct, id)
 	if err != nil {
 		c.JSON(http.StatusNotFound, urlstruct)
+		return
+	}
+	if (urlstruct.USERID != UserId) {
+		c.JSON(http.StatusNotFound, urlstruct)
+		return
 	}
 	c.BindJSON(&urlstruct)
 	err = Models.UpdateAUrl(&urlstruct, id)
 	if err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
                 fmt.Println("Request aborted with Status Not Found")
+		return
 	} else {
 		c.JSON(http.StatusOK, urlstruct)
                 fmt.Println("Request processed with Status OK")
@@ -92,8 +158,25 @@ func UpdateAUrl(c *gin.Context) {
 
 func DeleteAUrl(c *gin.Context) {
 	var urlstruct Models.RedirectUrl
+	var UserId int64
 	id := c.Params.ByName("id")
-	err := Models.DeleteAUrl(&urlstruct, id)
+
+        //Check if token is present
+        metadata, err := ExtractTokenMetadata(c.Request)
+        if err != nil {
+                fmt.Println("Anonymous Users trying to delete the URL")
+        } else {
+                UserId, err = FetchAuth(metadata)
+                if err != nil {
+                        fmt.Println("Fetch Auth Failed")
+                        c.JSON(http.StatusUnauthorized, err.Error())
+                        return
+                }
+	}
+
+	urlstruct.USERID = UserId
+
+	err = Models.DeleteAUrl(&urlstruct, id)
 	if err != nil {
 		c.AbortWithStatus(http.StatusNotFound)
                 fmt.Println("Request aborted with Status Not Found")

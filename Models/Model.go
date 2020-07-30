@@ -9,7 +9,8 @@ import (
 var DB *gorm.DB
 
 type RedirectUrl struct {
-	ID uint            `json:"id"`
+	ID int64        `json:"id"`
+        USERID int64     `json:"userid"`
 	Url string       `form:"url" json:"url" binding:"required"`
 	TinyUrl string `json:"tinyurl"`
 	CreatedDate time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_date"`
@@ -19,15 +20,18 @@ type RedirectUrl struct {
 
 type User struct {
 	ID        int64    `gorm:"primary_key;auto_increment" json:"id"`
-	Nickname  string    `gorm:"size:255;not null;unique" json:"nickname"`
+	Name  	  string    `gorm:"size:255;not null;unique" json:"name"`
+        Role	  bool      `json:"role"`
 	Email     string    `gorm:"size:100;not null;unique" json:"email"`
 	Password  string    `gorm:"size:100;not null;" json:"password"`
 	CreatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"created_at"`
 	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
 
+/*
 type Admin struct {
-	ID int64            `json:"id"`
+	ID uint64            `json:"id"`
 	Name string `json:"name"`
 	Password  string    `json:"password"`
 }
+*/

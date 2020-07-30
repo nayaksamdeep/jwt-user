@@ -22,10 +22,23 @@ func ListUsers(c *gin.Context) {
 	}
 }
 
-func CreateUser(c *gin.Context) {
+/*
+ * Register User
+ */
+func RegisterUser(c *gin.Context) {
 	var userstruct Models.User
-        c.BindJSON(&userstruct)
+
+        fmt.Println("Register User Function Enter")
+
+        err := c.BindJSON(&userstruct)
+
+        if err != nil {
+                c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "Incorrect Field Name(s)"})
+                fmt.Println("Register User aborted with Status Bad Request")
+                return
+        }
     
+/*
         //Check if token is present
         metadata, err := ExtractTokenMetadata(c.Request)
 	if err != nil {
@@ -38,7 +51,8 @@ func CreateUser(c *gin.Context) {
 		return
 	}
 
-        userstruct.ID = userid
+        userstruct.ID = uint64(userid)
+*/
 
         err = Models.CreateUser(&userstruct)
         if err != nil {
@@ -53,8 +67,7 @@ func CreateUser(c *gin.Context) {
 
 func GetUser(c *gin.Context) {
         var userstruct Models.User
-//        id := c.Params.ByName("id")
-
+        id := c.Params.ByName("id")
 
         //Check if token is present
         metadata, err := ExtractTokenMetadata(c.Request)
@@ -67,7 +80,13 @@ func GetUser(c *gin.Context) {
                 c.JSON(http.StatusUnauthorized, err.Error())
                 return
         }
-        id := strconv.FormatInt(userid, 16)
+        Id := strconv.FormatInt(userid, 16)
+        //compare the user from the request, with the one we defined:
+        if (Id  != id) {
+                c.JSON(http.StatusUnauthorized, "Please provide valid token details")
+                fmt.Println("User id mismatch between the token and actuals")
+                return
+        }
 
         err = Models.GetUser(&userstruct, id)
         if err != nil {
@@ -82,7 +101,27 @@ func GetUser(c *gin.Context) {
 func UpdateUser(c *gin.Context) {
         var userstruct Models.User
         id := c.Params.ByName("id")
-        err := Models.GetUser(&userstruct, id)
+
+        //Check if token is present
+        metadata, err := ExtractTokenMetadata(c.Request)
+        if err != nil {
+                c.JSON(http.StatusUnauthorized, "unauthorized")
+                return
+        }
+        userid, err := FetchAuth(metadata)
+        if err != nil {
+                c.JSON(http.StatusUnauthorized, err.Error())
+                return
+        }
+        Id := strconv.FormatInt(userid, 16)
+        //compare the user from the request, with the one we defined:
+        if (Id  != id) {
+                c.JSON(http.StatusUnauthorized, "Please provide valid token details")
+                fmt.Println("User id mismatch between the token and actuals")
+                return
+        }
+
+        err = Models.GetUser(&userstruct, id)
         if err != nil {
                 c.JSON(http.StatusNotFound, userstruct)
         }

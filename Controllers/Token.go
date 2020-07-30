@@ -38,14 +38,48 @@ func init() {
  * In Memory for now
  * Will rely on IAM later
  */
+
+/*
 var admin = Models.Admin{
 	ID:            1,
 	Name: "administrator",
 	Password: "password",
 }
+*/
 
 
-func LoginToken(c *gin.Context) {
+func LoginUser(c *gin.Context) {
+        id := c.Params.ByName("id")
+        var userstruct Models.User
+       
+        fmt.Println("Login Request Enter")
+        /*
+ 	 * Get User Info from DB
+         */ 
+        err := Models.GetUser(&userstruct, id)
+        if err != nil {
+                c.JSON(http.StatusUnauthorized, gin.H{"status": http.StatusUnauthorized, "message": "Invalid Username"})
+                fmt.Println("Login Request aborted with Status Not Found")
+                return
+        } 
+        
+        var userauth Models.User
+        err = c.BindJSON(&userauth)
+                
+        if err != nil {
+                c.JSON(http.StatusBadRequest, gin.H{"status": http.StatusBadRequest, "message": "Incorrect Field Name(s)"})
+                fmt.Println("Login User aborted with Status Bad Request")
+                return
+        }
+        
+        //compare the user from the request, with the one we defined: 
+        if userstruct.Name != userauth.Name || userstruct.Password != userauth.Password {
+                c.JSON(http.StatusUnauthorized, "Please provide valid login details")
+                fmt.Println("Login User No match for User Name and Password")
+                return
+        }
+
+/*
 	var adminstruct Models.Admin
 	if err := c.ShouldBindJSON(&adminstruct); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, "Invalid json provided")
@@ -57,14 +91,17 @@ func LoginToken(c *gin.Context) {
 		c.JSON(http.StatusUnauthorized, "Please provide valid login details")
 		return
 	}
+*/
 
-	ts, err := CreateToken(admin.ID)
+	ts, err := CreateToken(userstruct.ID)
 	if err != nil {
+                fmt.Println("Login User Create Token Failed")
 		c.JSON(http.StatusUnprocessableEntity, err.Error())
 		return
 	}
-	saveErr := CreateAuth(admin.ID, ts)
+	saveErr := CreateAuth(userstruct.ID, ts)
 	if saveErr != nil {
+                fmt.Println("Login User Create Auth Failed")
 		c.JSON(http.StatusUnprocessableEntity, saveErr.Error())
 	}
 	tokens := map[string]string{
@@ -226,14 +263,16 @@ func DeleteAuth(givenUuid string) (int64,error) {
 }
 
 
-func LogoutToken(c *gin.Context) {
+func LogoutUser(c *gin.Context) {
 	metadata, err := ExtractTokenMetadata(c.Request)
 	if err != nil {
+ 		fmt.Println("Unable to extract the token")
 		c.JSON(http.StatusUnauthorized, "unauthorized")
 		return
 	}
 	delErr := DeleteTokens(metadata)
 	if delErr != nil {
+ 		fmt.Println("Unable to Delete the token")
 		c.JSON(http.StatusUnauthorized, delErr.Error())
 		return
 	}
@@ -241,7 +280,7 @@ func LogoutToken(c *gin.Context) {
 }
 
 
-func RefreshToken(c *gin.Context) {
+func RefreshUser(c *gin.Context) {
 	mapToken := map[string]string{}
 	if err := c.ShouldBindJSON(&mapToken); err != nil {
 		c.JSON(http.StatusUnprocessableEntity, err.Error())
