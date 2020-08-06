@@ -10,6 +10,8 @@ https://github.com/open-policy-agent/opa
 
 https://github.com/open-policy-agent/example-api-authz-go
 
+https://livebook.manning.com/book/microservices-security-in-action/welcome/v-7/
+
 Here are the steps to run
 
 1. Register an User
