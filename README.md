@@ -12,6 +12,12 @@ https://github.com/open-policy-agent/example-api-authz-go
 
 https://livebook.manning.com/book/microservices-security-in-action/welcome/v-7/
 
+Requirements
+1. Redis should be running
+2. Uses SQlite for DB
+3. The html is only for the anonymous user
+4. REST API can be used to register a user, login, create URL etc
+
 Here are the steps to run
 
 1. Register an User
