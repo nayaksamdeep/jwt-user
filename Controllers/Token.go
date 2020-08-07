@@ -10,7 +10,10 @@ import (
 	"github.com/dgrijalva/jwt-go"
 	"github.com/go-redis/redis/v7"
 	"github.com/twinj/uuid"
-//	"log"
+        "io/ioutil"
+        "encoding/json"
+        "bytes"
+	"log"
 	"os"
 	"strconv"
 	"strings"
@@ -47,6 +50,52 @@ var admin = Models.Admin{
 }
 */
 
+// Authz struct
+type authz struct {
+	user     string `json:"user"`
+	access   string `json:"access"`
+}
+
+type opaauthz struct {
+	input  authz `json:"internal"`
+}
+
+var opastruct = opaauthz{
+     input: authz {
+	user: "alice",
+	access: "write",
+     } ,
+}
+
+
+func authorizeaccess() {
+    fmt.Println("1. Performing Http Post to OPA server..")
+
+    jsonReq, err := json.Marshal(opastruct)
+
+    resp, err := http.Post("http://localhost:8181/v1/data/myapi/policy/allow", "application/json; charset=utf-8", bytes.NewBuffer(jsonReq))
+
+//    resp, err := http.Post("http://localhost:8181/v1/data/myapi/policy/allow", --data-binary '{ "input": { "user": "alice", "access": "write" } }')
+
+    if err != nil {
+        fmt.Println("2. Faile to Post the Command to OPA server..")
+        log.Fatalln(err)
+    }
+
+    defer resp.Body.Close()
+    bodyBytes, _ := ioutil.ReadAll(resp.Body)
+
+    fmt.Println("3. Received Response from OPA server..")
+
+    // Convert response body to string
+    bodyString := string(bodyBytes)
+    fmt.Println(bodyString)
+
+    // Convert response body to Todo struct
+//    var todoStruct Todo
+//    json.Unmarshal(bodyBytes, &todoStruct)
+//    fmt.Printf("%+v\n", todoStruct)
+}
 
 func LoginUser(c *gin.Context) {
         id := c.Params.ByName("id")
@@ -78,6 +127,11 @@ func LoginUser(c *gin.Context) {
                 fmt.Println("Login User No match for User Name and Password")
                 return
         }
+
+        /*
+         * Check if the user has adequate permissions. If not, return
+         */
+ 	authorizeaccess()
 
 /*
 	var adminstruct Models.Admin
