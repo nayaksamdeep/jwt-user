@@ -28,10 +28,3 @@ type User struct {
 	UpdatedAt time.Time `gorm:"default:CURRENT_TIMESTAMP" json:"updated_at"`
 }
 
-/*
-type Admin struct {
-	ID uint64            `json:"id"`
-	Name string `json:"name"`
-	Password  string    `json:"password"`
-}
-*/
