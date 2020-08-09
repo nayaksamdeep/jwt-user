@@ -22,21 +22,6 @@ import (
 
 var client *redis.Client
 
-func init() {
-	//Initializing redis
-	dsn := os.Getenv("REDIS_DSN")
-	if len(dsn) == 0 {
-		dsn = "localhost:6379"
-	}
-	client = redis.NewClient(&redis.Options{
-		Addr: dsn, //redis port
-	})
-	_, err := client.Ping().Result()
-	if err != nil {
-		panic(err)
-	}
-}
-
 /*
  * Hardcoded assumption that Alice is the user
  * We can change it to read from the User Name
@@ -49,7 +34,7 @@ func authorizeuser() {
 
   payload := strings.NewReader("{ \n    \"input\": {\n        \"user\": \"alice\", \n        \"access\": \"write\" \n    }\n}")
 
-  client := &http.Client {
+  hclient := &http.Client {
   }
   req, err := http.NewRequest(method, url, payload)
 
@@ -58,7 +43,7 @@ func authorizeuser() {
   }
   req.Header.Add("Content-Type", "text/plain")
 
-  res, err := client.Do(req)
+  res, err := hclient.Do(req)
   defer res.Body.Close()
   body, err := ioutil.ReadAll(res.Body)
 

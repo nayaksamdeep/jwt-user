@@ -13,24 +13,18 @@ func SetupRouter() *gin.Engine {
 	{
 		v1.GET("/", Controllers.GetHomePage)
 
-/*
-
-		v1.POST("LoginToken", Controllers.LoginToken)
-		v1.POST("RefreshToken", Controllers.RefreshToken)
-		v1.POST("LogoutToken", Controllers.LogoutToken)
-
-		v1.GET("ListUsers", Controllers.ListUsers)
-		v1.POST("CreateUser", Controllers.CreateUser) // Deprecated in favor of Register User
-		v1.GET("user/:id", Controllers.GetUser)
-		v1.PUT("user/:id", Controllers.UpdateUser)
-		v1.DELETE("user/:id", Controllers.DeleteUser)
-*/
-                v1.POST("RegisterUser", Controllers.RegisterUser) //New Route
+                v1.POST("RegisterUser", Controllers.RegisterUser) //New Route to add User
                 v1.GET("ListUsers", Controllers.ListUsers)
 
-                v1.POST("user/:id/LoginUser", Controllers.LoginUser)    // Name Change
-                v1.POST("user/:id/RefreshUser", Controllers.RefreshUser)  // Name Change
-                v1.POST("user/:id/LogoutUser", Controllers.LogoutUser)   // Name Change
+                v1.POST("user/:id/LoginUser", Controllers.LoginUser)     //Provides Access Token and Refresh Token
+                v1.POST("user/:id/RefreshUser", Controllers.RefreshUser) //Refreshes Token 
+                v1.POST("user/:id/LogoutUser", Controllers.LogoutUser)   // Invalidates the token
+
+		/*
+                 * Use Google API for Login, We do not need to store the password
+                 */
+                v1.GET("GoogleLogin", Controllers.GoogleLogin) //New Route to add User
+                v1.GET("auth", Controllers.GoogleAuth)
 
                 v1.GET("user/:id", Controllers.GetUser)
                 v1.PUT("user/:id", Controllers.UpdateUser)
