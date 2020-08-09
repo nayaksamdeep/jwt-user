@@ -68,6 +68,7 @@ On Mac, you can use brew to install it
 To run redis run, "redis-server /usr/local/etc/redis.conf"
 
 3. Install OPA
+
 curl -L -o opa https://openpolicyagent.org/downloads/latest/opa_darwin_amd64
 chmod 755 ./opa
 ./opa run
@@ -113,6 +114,7 @@ samdeep$ curl -X PUT http://localhost:8181/v1/policies/myapi --data-binary @myap
 4. Make sure you have sqlite
 
 Running the Application
+
 1. Redis should be running
 2. opa server should be running
 2. Need SQlite for DB
