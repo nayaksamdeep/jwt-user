@@ -15,15 +15,18 @@ https://livebook.manning.com/book/microservices-security-in-action/welcome/v-7/
 https://medium.com/@cgrant/golang-oauth2-google-example-for-web-and-api-59187ce8b119
 
 Introduction
+
 Security is a critical aspect developing a web application. Auth-N and Auth-Z are 2 key parts of it. 
 In this module. we will add auth-N and auth-z support for tiny url
 
 User Management
+
 There are 2 ways of creating the user. 
 - He can go ahead and provide all the details
 - He can use google, facebook etc API for managing the user account. The app does not need to store any password
 
 JWT
+
 Once the user logs in, we need to ensure the communication between the user and the application is secure
 JWT mechanism is used to secure it in this example. The app generates access and refresh token. 
 The user inputs access token with bearer token. The application retrieves the token, identifies the user and performs the operation
@@ -31,11 +34,13 @@ Since there is a timeout involved with access token, the user can use refresh to
 When the user logs out, the token is destroyed
 
 Authorization
+
 The applications provides different roles. E.g. the paid customers are only able to generate custom url vs free users.
 We use a policy engine to store the policy details. i.e User X has permission to run attribute Y on Resource Z
 We have used OPA which is a cloud native Policy Enginer written in go.
 
 Setting Up
+
 1. Setting Google Account for OAuth
 
 a. Go to https://console.developers.google.com
